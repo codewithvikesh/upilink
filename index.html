@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPI Payment Link Generator</title>
+  
+  <!-- Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  
+  <!-- QR Code JS Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <style>
+    /* Reset and Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f5f7fa;
+    }
+    
+    /* Layout */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+    
+    /* Header */
+    .header {
+      background-color: #4f46e5;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+    
+    .header p {
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+    
+    /* Main Content */
+    .main-content {
+      padding: 40px 0;
+    }
+    
+    /* Form Card */
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    
+    /* Platform Tabs */
+    .platform-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    
+    .tab-btn {
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-btn.active {
+      background-color: #4f46e5;
+      color: white;
+    }
+    
+    .tab-btn:not(.active) {
+      background-color: #f3f4f6;
+      color: #4b5563;
+    }
+    
+    .tab-btn:hover:not(.active) {
+      background-color: #e5e7eb;
+    }
+    
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #4b5563;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.2s ease;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .required {
+      color: #ef4444;
+    }
+    
+    /* Button */
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary {
+      background-color: #4f46e5;
+      color: white;
+      width: 100%;
+    }
+    
+    .btn-primary:hover {
+      background-color: #4338ca;
+    }
+    
+    /* Result Section */
+    .result-container {
+      display: none;
+    }
+    
+    .result-container.active {
+      display: block;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #111827;
+    }
+    
+    .link-display {
+      padding: 15px;
+      background-color: #f9fafb;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      word-break: break-all;
+      font-family: monospace;
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .btn-copy {
+      background-color: #4f46e5;
+      color: white;
+    }
+    
+    .btn-copy:hover {
+      background-color: #4338ca;
+    }
+    
+    .btn-share {
+      background-color: #10b981;
+      color: white;
+    }
+    
+    .btn-share:hover {
+      background-color: #059669;
+    }
+    
+    .btn-open {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    .btn-open:hover {
+      background-color: #2563eb;
+    }
+    
+    /* QR Code Section */
+    .qr-code-container {
+      margin-top: 25px;
+    }
+    
+    .qr-code-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 15px;
+    }
+    
+    .qr-code {
+      background-color: white;
+      padding: 15px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    /* Footer */
+    .footer {
+      background-color: #f3f4f6;
+      color: #6b7280;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 0.9rem;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+    
+    /* Icons */
+    .icon {
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    
+    /* Copied Animation */
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    
+    .copied-message {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #4f46e5;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 6px;
+      animation: fadeInOut 2s forwards;
+      display: none;
+    }
+    
+    .copied-message.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <h1>UPI Payment Link Generator</h1>
+      <p>Create payment links for any UPI platform in seconds</p>
+    </div>
+  </header>
+  
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <!-- Form Card -->
+      <div class="card">
+        <!-- Platform Tabs -->
+        <div class="platform-tabs">
+          <button class="tab-btn active" data-platform="bhim">BHIM</button>
+          <button class="tab-btn" data-platform="gpay">Google Pay</button>
+          <button class="tab-btn" data-platform="phonepe">PhonePe</button>
+          <button class="tab-btn" data-platform="paytm">Paytm</button>
+        </div>
+        
+        <!-- Form Fields -->
+        <div class="form-fields">
+          <div class="form-group">
+            <label class="form-label" for="name">Your Name</label>
+            <input class="form-input" id="name" placeholder="Enter your name" type="text"/>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="vpa">UPI ID / VPA <span class="required">*</span></label>
+            <input class="form-input" id="vpa" placeholder="example@upi" required type="text"/>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="amount">Amount (₹)</label>
+            <input class="form-input" id="amount" placeholder="Enter amount (optional)" type="number"/>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="purpose">Purpose / Note</label>
+            <input class="form-input" id="purpose" placeholder="Enter payment purpose (optional)" type="text"/>
+          </div>
+          
+          <button class="btn btn-primary" id="generate-btn">
+            <i class="fas fa-link icon"></i> Generate Link
+          </button>
+        </div>
+      </div>
+      
+      <!-- Result Card -->
+      <div class="card result-container" id="result-container">
+        <h2 class="section-title">Your Payment Link</h2>
+        
+        <div class="link-display" id="payment-link"></div>
+        
+        <div class="action-buttons">
+          <button class="btn btn-copy" id="copy-btn">
+            <i class="fas fa-copy icon"></i> Copy Link
+          </button>
+          
+          <button class="btn btn-share" id="share-btn">
+            <i class="fas fa-share-alt icon"></i> Share
+          </button>
+          
+          <a class="btn btn-open" href="#" id="open-link" target="_blank" rel="noopener noreferrer">
+            <i class="fas fa-external-link-alt icon"></i> Open Link
+          </a>
+        </div>
+        
+        <!-- QR Code Section -->
+        <div class="qr-code-container">
+          <h3 class="qr-code-title">QR Code</h3>
+          <div class="qr-code">
+            <div id="qrcode"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>UPI Payment Link Generator | Create payment links in seconds</p>
+    </div>
+  </footer>
+  
+  <!-- Copied Message -->
+  <div class="copied-message" id="copied-message">Link copied to clipboard!</div>
+  
+  <!-- JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Elements
+      const platformTabs = document.querySelectorAll('.tab-btn');
+      const generateBtn = document.getElementById('generate-btn');
+      const resultContainer = document.getElementById('result-container');
+      const paymentLinkDisplay = document.getElementById('payment-link');
+      const copyBtn = document.getElementById('copy-btn');
+      const shareBtn = document.getElementById('share-btn');
+      const openLinkBtn = document.getElementById('open-link');
+      const copiedMessage = document.getElementById('copied-message');
+      const qrcodeContainer = document.getElementById('qrcode');
+      
+      // Form Inputs
+      const nameInput = document.getElementById('name');
+      const vpaInput = document.getElementById('vpa');
+      const amountInput = document.getElementById('amount');
+      const purposeInput = document.getElementById('purpose');
+      
+      let activePlatform = 'bhim';
+      let generatedLink = '';
+      let qrcode = null;
+      
+      // Platform tab selection
+      platformTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          // Remove active class from all tabs
+          platformTabs.forEach(t => t.classList.remove('active'));
+          
+          // Add active class to clicked tab
+          this.classList.add('active');
+          
+          // Update active platform
+          activePlatform = this.getAttribute('data-platform');
+        });
+      });
+      
+      // Generate link function
+      generateBtn.addEventListener('click', function() {
+        const name = nameInput.value || 'User';
+        const vpa = vpaInput.value;
+        const amount = amountInput.value || '0';
+        const purpose = purposeInput.value || 'Payment';
+        
+        if (!vpa) {
+          alert('Please enter your UPI ID');
+          return;
+        }
+        
+        // Generate link based on platform
+        switch (activePlatform) {
+          case 'bhim':
+            generatedLink = `upi://pay?pa=${vpa}&pn=${name}&am=${amount}&tn=${purpose}&cu=INR`;
+            break;
+          case 'gpay':
+            generatedLink = `https://pay.google.com/payments/u/0/home#ifhd=https://pay.google.com/gp/v/upay/${vpa}?t=${amount}&cu=INR&tn=${purpose}`;
+            break;
+          case 'phonepe':
+            generatedLink = `phonepe://pay?pa=${vpa}&pn=${name}&am=${amount}&tn=${purpose}&cu=INR`;
+            break;
+          case 'paytm':
+            generatedLink = `paytmmp://pay?pa=${vpa}&pn=${name}&am=${amount}&tn=${purpose}&cu=INR`;
+            break;
+          default:
+            generatedLink = `upi://pay?pa=${vpa}&pn=${name}&am=${amount}&tn=${purpose}&cu=INR`;
+        }
+        
+        // Display the link
+        paymentLinkDisplay.textContent = generatedLink;
+        
+        // Update open link button
+        openLinkBtn.href = generatedLink;
+        
+        // Show result container
+        resultContainer.classList.add('active');
+        
+        // Generate QR code
+        if (qrcode) {
+          qrcode.clear();
+          qrcode.makeCode(generatedLink);
+        } else {
+          qrcodeContainer.innerHTML = '';
+          qrcode = new QRCode(qrcodeContainer, {
+            text: generatedLink,
+            width: 180,
+            height: 180,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        }
+        
+        // Scroll to result
+        resultContainer.scrollIntoView({ behavior: 'smooth' });
+      });
+      
+      // Copy to clipboard
+      copyBtn.addEventListener('click', function() {
+        navigator.clipboard.writeText(generatedLink)
+          .then(() => {
+            // Show copied message
+            copiedMessage.classList.add('active');
+            setTimeout(() => {
+              copiedMessage.classList.remove('active');
+            }, 2000);
+          })
+          .catch(err => {
+            console.error('Failed to copy: ', err);
+            // Fallback method
+            const tempInput = document.createElement('textarea');
+            tempInput.value = generatedLink;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            // Show copied message
+            copiedMessage.classList.add('active');
+            setTimeout(() => {
+              copiedMessage.classList.remove('active');
+            }, 2000);
+          });
+      });
+      
+      // Share functionality
+      shareBtn.addEventListener('click', function() {
+        if (navigator.share) {
+          navigator.share({
+            title: 'UPI Payment Link',
+            text: `Pay ${nameInput.value || 'User'} using UPI`,
+            url: generatedLink
+          }).catch(err => {
+            console.error('Share failed:', err);
+          });
+        } else {
+          alert('Web Share API not supported in your browser');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
